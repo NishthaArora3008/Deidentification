@@ -1,0 +1,432 @@
+---
+title: "Data deidentification and modification"
+subtitle: ETC5512 Assignment 3, Master of Business Analytics
+author: Prepared by Nishtha Arora, 32296622, naro0004@student.monash.edu 
+date: '`r Sys.Date()`'
+output: 
+  html_document:
+    css: monashreport.css
+    includes:
+      before_body: header.html
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, 
+                      messages = FALSE, 
+                      warning = FALSE)
+library(tidyverse)
+library(readr)
+library(lubridate)
+library(here)
+library(kableExtra)
+```
+
+```{r reading-data}
+survey <- readRDS(here::here("raw_data/survey_data.rds"))
+```
+
+# 🔍 Analysis
+
+*(Showcasing code and then displaying ONLY the changes too **separately**)*
+
+## Identify and remove the direct identifiers from the data.
+
+**Direct identifiers** are the information that can be specifically linked to an individual e.g. name, address, biometric record, etc. *("Direct Identifier | Privitar", 2021)*.
+
+**Identification** of Direct Identifiers.
+
+- **id_number and ResponseID**: Can be known/unknown to the survey participant. Since these *IDs* are **unique** and if they are known, identification of an individual is directly possible.
+
+- **IPAddress**: An Internet Protocol address (IP address) is a numerical **label assigned to each device**e connected to a computer network and is **unique** for each device, making an individual using that device, easily identifiable *("What is an IP Address – Definition and Explanation", 2021)*.
+
+- **Duration**: Here, duration is the time spent doing the survey, and is measured in seconds. This **can/cannot be unique** for every individual, but since, it is measure in seconds, it is **highly likely to be unique** for most of the individuals.
+Although there is a slim chance for an individual to know about their exact survey response time, **not treating 'duration' as a direct identifier (here) can be risky.**
+
+- **ResponseLastName and ResponseFirstName** : These variables together for the full name. And although it is **possible** for people to have common names, it is an **unlikely situation** here. Hence, these are **direct identifiers**.
+
+- **LocationLatitude and LocationLongitude**: These are the **household location coordinates** for an individual. Although it is possible that *residents of the same household got the mailed* invitation for the survey and was, hence, filled by them too, this is a **highly unlikely** situation. 
+Therefore, the coordinates would be **unique** for every entry in the dataset.
+
+- **QID28**: This variable has the **email addresses** for the survey participants. And as we know, each email address is **unique** which belongs to one and only one individual, making it a **direct identifier**.
+
+**Removal** of Direct Identifiers.
+
+```{r direct-identifier-removal}
+Direct_removal <- select (survey,-c(id_number, IPAddress, Duration, ResponseID, ResponseLastName, ResponseFirstName, LocationLatitude, LocationLongitude, QID28))
+
+#Displaying Change
+head(Direct_removal, 2)
+```
+
+## Checking and correcting data-types.
+
+Firstly, **checking the data types** for variables:
+
+```{r type-check}
+str(Direct_removal) 
+```
+
+Here *QID16 i.e. 'working hours per week in 2020' is of numeric data type*. Here the level of variables are numbers that represent a particular option from the questionnaire. Therefore, the **correct data type for QID16 should be 'Integer'** like all the other like-variables.
+
+Here below, **correcting the data type for QID16** and renaming and relocating it back to its original position.
+
+```{r correcting_QID16_type}
+correction <-  Direct_removal %>% 
+  mutate(Weekly_Working_hrs_20 = as.integer(QID16)) %>% 
+  relocate(Weekly_Working_hrs_20, .after= QID14) %>% 
+select(!QID16)
+
+#Displaying Change
+typeof(correction$Weekly_Working_hrs_20)
+```
+
+Hence, all are in their correct data types.
+
+We know that all *' date' variables are in date format*, So making sure the **form for date** is correct.
+
+```{r date-modify}
+correct_form <- correction %>%
+  mutate(Start_date = ymd(StartDate),
+         End_date = ymd(EndDate),
+         Recorded_date = ymd(RecordedDate)) %>% 
+   select(-c(StartDate, EndDate, RecordedDate))
+
+#Displaying Change
+head(correct_form, 2)
+```
+
+## De-identification strategy
+
+Here we will work on de-identifying indirect identifiers. 
+
+**Indirect Identifiers**: These are the values that cannot be used to identify an individual on its own, but could theoretically be used to identify someone in combination with other values *("Indirect Identifier | Privitar", 2021)*.
+
+**First Strategy: Choice of variables**
+
+Here, the dates i.e. **Start_date and End_date** can either be unique to an individual or **can be combined** with other information within or outside of the data to **uniquely identify** an individual.
+
+It is **possible** for an individual to **remember** the date when the survey was filled and the date (same or different), he/she submitted the survey unlike 'Recorded_date' as the 'recorded date' does not depend on the individual but on the system that accumulates the data.
+
+It is one of the **safest ways** to reduce the **risk of identification**. Since the objective of the data-set is to measure impact on Covid-19 via income, the removal of start and end dates **won't hamper the utility of the data**.
+
+```{r first_st}
+First_Strategy <- correct_form %>% 
+  select(-c(Start_date, End_date))
+
+#Displaying Change
+Display1 <- First_Strategy 
+  head(Display1, 2)
+```
+
+Now, moving on to another strategy, to de-identify demographics : 
+
+**Second Strategy: Perturbation**
+
+Here we will be adding a small amount of **noise** and this would be done with a notion of *tolerable error*. Tolerable errors are maximum errors that can be accepted to conclude that the objective of the deed has been achieved.
+
+This is done at the beginning to firstly make all the entries in the dataset be **not-completely identifiable** by the individual. 
+
+Since, most of the variables in the dataset are 'binary numbers', 'count of people' or a 'number representing a particular response', **implementing this strategy on the income columns**, where a **clear margin of error can be described**.
+
+Therefore, using variables: **QID19, QID21 and QID22**.
+
+```{r second_st}
+Second_Strategy <-  First_Strategy %>% 
+  mutate(Expected_Income_2021 = QID19 + rnorm(1000, 0, 3000),
+         Income_2020 = QID21 + rnorm(1000, 0, 3000),
+         Income_2019 = QID22 + rnorm(1000, 0, 3000)) %>%     
+  select(-c(QID19, QID21, QID22)) 
+
+#Displaying Change
+Display2 <- Second_Strategy %>% 
+  select(Expected_Income_2021, Income_2020, Income_2019)
+head(Display2, 2)
+```
+
+Now, it is still possible that the data entry is identifiable as the extreme values (highest and lowest) become evident in the dataset. But no alteration would be done in that case, as that will hamper with information we conclude from the analysis.
+
+Therefore, we use more de-identification strategies for other variables: 
+
+**Third Strategy: Aggregation**:
+
+Here, we combine **information that might be individually identifying**, into categories with **multiple individuals per cell**.
+
+The category **OID6 i.e age** variable is used for this strategy because 'age' can have a **number of different values** and also when combined with other demographics such as 'QID15 (postcode)', 'date' or 'income with minor errors', the **data entry can be at risk**. And **removing 'age' will result in a considerable loss in information**.
+
+Forming groups for age will reduce the risk of identification as a group of people will represent their corresponding data entries. And it would be **hard for the individual to guess** if the entries belong to him/her to anyone else from that age group.
+
+```{r third_st}
+Third_Strategy <- Second_Strategy %>%
+  mutate(Age_Group = cut(QID6,breaks = c(15,24,45,55,80,150)))%>% 
+  select(-QID6) 
+
+#Displaying Change
+Display3 <- Third_Strategy %>% 
+  select(Age_Group)
+head(Display3, 2)
+```
+
+Since the objective of the dataset is to measure the impact of Covid-19 via income statistics, the breaking of age is done based on a working lifestyle e.g. 
+
+- At 15, children can start working according to Australian law *("When can I start working? | Youth Law Australia", 2021)*.
+
+- At 24, most young graduates start their first industry jobs *("FactCheck Q&A: does it take 4.7 years for young graduates to find employment in Australia?", 2021)*.
+
+- For above 45 years, the average age to retire is around 55 years *("What is the retirement age in Australia?", 2021)*.
+
+- Life average expectancy for Australians is around 80 years *(Australia Life Expectancy 1950-2021, 2021)*.
+
+- 150 is the maximum age that a person can survive *(How Long Can a We Live? Scientists Peg 150 Years as the Maximum Age for a Human to Survive, n.d.)*.
+
+Although this technique reduced the risk of identification to a minimum to some extent, we further use another strategy to make the dataset completely de-identifiable: 
+
+**Fourth Strategy: Top and bottom coding**
+
+This strategy censors the top and/or bottom values of particular variable values to **limit the occurrence of rare values.**
+
+We use this strategy for QID7 and QID8 because **QID7** (no. of adults) and **QID8** ( no. of children i.e of less than 18 age value) have top values with very less occurrence i.e. QID7 has a maximum value of '5' and QID8 has a maximum value of '4', **both values with less count**. These two variables **cant be removed** because it would **decrease the utility of the dataset**.
+
+The average number of people per household in Melbourne is 2.7, the average number of children per family is 1.8 *(Greater Melbourne demographics - Invest Victoria, 2021)*. 
+
+Therefore, **slightly modifying the technique of 'top and bottom coding'**, the upper limit for QID7 is set as 3 and all values above 3 are recorded as 'More than 3'. Similarly, as the upper limit for QID8 is 2, the values above 2 are recorded as 'More than 2'.
+ 
+```{r fourth_st}
+Fourth_Strategy <- Third_Strategy %>%
+  mutate(Adult_count= ifelse(QID7>3,"More than 3",QID7)) %>% 
+   mutate(Children_count = ifelse(QID8>2,"More than 2",QID8)) %>% 
+  select(-c(QID7, QID8))
+
+#Displaying Change
+Display4 <- Fourth_Strategy %>% 
+  select(Adult_count, Children_count)
+head(Display4, 2)
+```
+
+Since for this strategy it can be **obvious what the truncation values** were, we use another strategy to make the data-set completely de-identifiable:
+
+**Fifth Strategy: Aggregation**
+
+We used this as the *first strategy* as well. Here, in this case, we use **QID15** i.e postcode. Similar to 'age', 'postcode' can have a **number of different values** and some values **can be duplicate** , but **some can be unique** as well. 
+
+As the removal of this variable can result in loss of information, **it needs to be altered**. QID15 is an integer, 'Swapping' or 'Aggregation' seemed to be the right choice for de-identifying, but since swapping can result in changing the region for all entries, it can hamper with the analysis, **Hence, we use aggregation here**.
+
+The postcodes are grouped with a break of '50', which seemed like the minimum appropriate gap for grouping the postcodes.
+
+```{r fifth_st}
+Fifth_Strategy <- Fourth_Strategy %>%
+  mutate(Postcode_range = cut(QID15,breaks = c(3000, 3050, 3150, 3250, 3350),dig.lab = 4L) )%>% 
+  select(-QID15)
+
+#Displaying Change
+Display5 <- Fifth_Strategy %>% 
+  select(Postcode_range)
+head(Display5, 2)
+```
+
+The de-identification of the data-set is **now complete**.
+
+## Check strategy
+
+Firstly, checking the frequency by the combination of modified QID6, QID7 and QID8 columns i.e. Children_count, Adult_count and Age_Group.
+
+```{r check_st_3}
+check1 <- Fourth_Strategy %>% 
+  group_by(Children_count, Adult_count, Age_Group) %>% 
+  mutate(Freq = n()) %>%
+  ungroup() %>%
+  filter(Freq == 1) 
+check1
+```
+
+7 individuals are potentially identifiable based on these cross-tabulations. So further after the fourth strategy i.e. after the modification of QID15 i.e. Postcode column: 
+
+We check the frequency by the combination of Postcode, Children_count, Adult_count and  Age_Group.
+
+```{r check_final}
+check2 <- Fifth_Strategy %>% 
+  mutate(Freq = n()) %>%
+  group_by(Children_count, Adult_count, Age_Group, Postcode_range) %>% 
+  ungroup() %>%
+  filter(Freq == 1) 
+check2
+```
+
+Here, we observed that **0 individuals are potentially identifiable based on these cross-tabulations**.
+
+Hence, **the de-identification strategy has been successful**.
+
+## Computer-readable structure
+
+Renaming the remaining variables (Column names):  
+
+```{r renaming_variables}
+col_names <- Fifth_Strategy %>% 
+  rename(Consent_statement = QID29, 
+         Work_from_home_Freq_19 = QID12, 
+         Work_from_home_Freq_20 = QID10, 
+         Weekly_Working_hrs_19 =QID14, 
+        'Traditional work hours_19  (9-5, Mon - Fri)' = QID17_1, 
+         'Early mornings_19  (5am - 9am)' = QID17_2, 
+         'Early evenings_19  (5pm - 9pm)' = QID17_3, 
+         'Late evenings_19  (5pm - midnight)' = QID17_4, 
+         'Overnight_19 (midnight - 5am)' = QID17_5, 
+         'Traditional work hours_20  (9-5, Mon - Fri)' = QID18_1, 
+         'Early mornings_20  (5am - 9am)' = QID18_2, 
+         'Early evenings_20  (5pm - 9pm)' = QID18_3, 
+         'Late evenings_20 (5pm - midnight)' = QID18_4, 
+         'Overnight_20 (midnight - 5am)' = QID18_5, 
+         Work_schedule_stability_19 = QID20, 
+         Work_schedule_stability_20  = QID23, 
+        Comfortable_lifestyle_19 = QID24_1, 
+         Lonely_lifestyle_19 = QID24_2, 
+         Active_lifestyle_19 = QID24_3, 
+         Connected_lifestyle_19 = QID24_4, 
+         Peaceful_lifestyle_19 = QID24_5, 
+         Chaotic_lifestyle_19 = QID24_6, 
+         Comfortable_lifestyle_20 = QID25_1, 
+         Lonely_lifestyle_20 = QID25_2, 
+         Active_lifestyle_20 = QID25_3, 
+         Connected_lifestyle_20 = QID25_4, 
+         Peaceful_lifestyle_20 = QID25_5, 
+         Chaotic_lifestyle_20 = QID25_6,
+         Mental_health_19 = QID26, 
+         Mental_health_20 = QID27)
+
+#Displaying Change
+head(col_names, 2)
+```
+
+Renaming the *required* levels of variables i.e 1st(Finished) and 3rd (Consent_statement) columns. 
+
+The levels of variables for these remaining columns are in binary (the meaning of 0 and 1 is mostly understood)and since these columns do not represent a survey-related question, therefore, renaming the first two columns with levels for making the **beginning of the dataset presentable**.
+
+```{r renaming_levels_beginning}
+level_start_names <- col_names %>% 
+  mutate(
+    Finished = str_replace_all( Finished, 
+        c("1"= "Yes", "0" ="No")),
+    
+    Consent_statement = str_replace_all( Consent_statement, 
+                c("1"= "Agreed", "0" ="Not-agreed"))
+  )
+
+#Displaying Change
+Display6 <- level_start_names %>% 
+  select(Finished,Consent_statement)
+  head(Display6,2)
+```
+
+Now, we will rename the other levels of variables, **where numbers represent a particular option/answer of the questionnaire**.
+
+This we do, **for the ease of reading data**.
+
+```{r renaming_levels_with_options}
+
+level_names <- level_start_names %>% 
+  mutate(
+Work_from_home_Freq_19 = str_replace_all(Work_from_home_Freq_19, 
+                  c("2" = "Never", "3" = "Sometimes", "4" = "About half the time", "5" = "Most of the time", "6" = "Always", "0" = "Didn't work", "1" = "Didn't work")),
+    
+Work_from_home_Freq_20 = str_replace_all(Work_from_home_Freq_20, 
+                 c("2" = "Never", "3" = "Sometimes", "4" = "About half the time", "5" = "Most of the time", "6" = "Always", "0" = "Didn't work", "1" = "Didn't work")),
+    
+Weekly_Working_hrs_19 = str_replace_all(Weekly_Working_hrs_19, 
+                c("0" = "Didn’t work", "1" = "Didn't work", "2" = "less than 10 hours  ", "3" = "10-20 hours  ", "4" = "20-30 hours  ", "5" = "30-40 hours  ", "6" = "40+ hours ")),
+
+Weekly_Working_hrs_20 = str_replace_all(Weekly_Working_hrs_20,
+                c("0" = "Didn't work", "1" = "Didn't work", "2" = "less than 10 hours", "3" = "10-20 hours", "4" = "20-30 hours", "5" = "30-40 hours", "6" = "40+ hours")),
+    
+Work_schedule_stability_19 = str_replace_all( Work_schedule_stability_19, 
+                    c("0" = "No changes", "1" = "No changes", "2" = "Some small changes", "3" = "Varying", "4" = "Unpredictable")),
+
+Work_schedule_stability_20 = str_replace_all( Work_schedule_stability_20, 
+                      c("0" = "No changes", "1" = "No changes", "2" = "Some small changes", "3" = "Varying", "4" = "Unpredictable")),
+     
+Mental_health_19 = str_replace_all(Mental_health_19, 
+          c("0" = "Good", "1" = "Good", "2" = "Some challenges", "3" = "Significant challenges")),
+   
+Mental_health_20 = str_replace_all(Mental_health_20, 
+           c("0" = "Good", "1" = "Good", "2" = "Some challenges", "3" = "Significant challenges")))
+
+#Displaying Change
+head(level_names, 2)
+```
+
+*Now, the remaining (for renaming) are the 'levels of variables' for questions that are represented in binary form i.e 0 and 1*. Therefore, **no separate renaming** is required in this case. As the usual meaning for 1 can be 'yes','true' etc. and for 0 can be 'false','no' etc. This is properly explained in the codebook.
+
+Now, we will **split composite variables** into separate variables.
+
+**Composite Variables**: Variables created by combining two or more individual variables.
+
+Here in the dataset used, only **Recorded_date is a composite variable**. Hence, we split it.
+
+As for date components, logical comparisons are simple, so, extracting and converting the **Year_record** to **Integer type**, allowing for date components to be compared and manipulated as a numeric vector. And assigning a label to the 'number' defining **month** and converting it to a **character type**.
+
+**Not** extracting 'Day' from 'Recorded_date' as:
+Firstly, 'Day' can be unique (even though the recorded day is unknown to the participant) and Secondly, removing 'Day' **would not interfere with the analysis**, but removing 'Month' or 'Year' could.
+
+```{r splitting}
+split <- level_names %>%
+   mutate(Year_record = year(Recorded_date),
+          Month_record = month(Recorded_date, label = TRUE, abbr = FALSE)) %>% 
+  select(-c(Recorded_date)) %>% 
+  mutate(Year_of_record = as.integer(Year_record),
+         Month_of_record = as.character(Month_record)) %>% 
+  select(-c(Year_record,Month_record))
+
+#Displaying Change
+Display7 <- split %>% 
+  select(Year_of_record,Month_of_record)
+  head(Display7, 2)
+```
+
+## Saving data in a csv form in the data folder:
+
+```{r writing_csv}
+write.csv(split,"../data/release-data-Arora-Nishtha.csv")
+```
+
+**Now the 'release' dataset is available in the 'data folder' of 'assignment3_template'.**
+
+## Resources
+
+[1] Direct Identifier | Privitar. (2021). Retrieved 3 June 2021, from https://www.privitar.com/glossary/direct-identifier/
+
+[2] FactCheck Q&A: does it take 4.7 years for young graduates to find employment in Australia?. (2021). Retrieved 3 June 2021, from https://theconversation.com/factcheck-qanda-does-it-take-4-7-years-for-young-graduates-to-find-employment-in-australia-56916
+
+[3] Garrett Grolemund, Hadley Wickham (2011). Dates and Times Made Easy with lubridate. Journal of Statistical Software, 40(3), 1-25. URL https://www.jstatsoft.org/v40/i03/.
+
+[4] Hadley Wickham and Jim Hester (2020). readr: Read Rectangular Text Data. R package version 1.4.0. https://CRAN.R-project.org/package=readr
+  
+[5] Hao Zhu (2021). kableExtra: Construct Complex Table with 'kable'and Pipe Syntax. R package version 1.3.4. https://CRAN.R-project.org/package=kableExtra
+  
+[6] Indirect Identifier | Privitar. (2021). Retrieved 3 June 2021, from https://www.privitar.com/glossary/indirect-identifier/
+  
+[7] Invest.vic.gov.au. 2021. Greater Melbourne demographics - Invest Victoria. [online] Available at: <https://www.invest.vic.gov.au/resources/statistics/greater-melbourne-demographics> [Accessed 3 June 2021].
+  
+[8] Kennedy, L. (2021). Lecture 11: Data Privacy. Presentation, Monash University.
+
+[9] Kirill Müller (2020). here: A Simpler Way to Find Your Files. R
+package version 1.0.1. https://CRAN.R-project.org/package=here
+  
+[10] Kopper, S., Sautmann, A. and Turitto, J., 2020. J-PAL GUIDE TO DE-IDENTIFYING DATA. [online] Povertyactionlab.org. Available at: <https://www.povertyactionlab.org/sites/default/files/research-resources/J-PAL-guide-to-deidentifying-data.pdf> [Accessed 3 June 2021].
+  
+[11] Macrotrends.net. 2021. Australia Life Expectancy 1950-2021. [online] Available at: <https://www.macrotrends.net/countries/AUS/australia/life-expectancy> [Accessed 3 June 2021].
+  
+[12] News18.com. n.d. How Long Can a We Live? Scientists Peg 150 Years as the Maximum Age for a Human to Survive. [online] Available at: <https://www.news18.com/news/buzz/how-long-can-a-we-live-scientists-peg-150-years-as-the-maximum-age-for-a-human-to-survive-3779132.html> [Accessed 3 June 2021].
+  
+[13] RStudio Team (2020). RStudio: Integrated Development for R. RStudio, PBC, Boston, MA URL http://www.rstudio.com/.
+  
+[14] What is an IP Address – Definition and Explanation. (2021). Retrieved 3 June 2021, from https://www.kaspersky.com/resource-center/definitions/what-is-an-ip-address
+  
+[15] What is the retirement age in Australia?. (2021). Retrieved 3 June 2021, from https://www.amp.com.au/retirement/prepare-to-retire/retirement-age-australia
+  
+[16] When can I start working? | Youth Law Australia. (2021). Retrieved 3 June 2021, from https://yla.org.au/vic/topics/employment/when-can-i-start-working/
+  
+[17] Wickham et al., (2019). Welcome to the tidyverse. Journal of Open
+Source Software, 4(43), 1686, https://doi.org/10.21105/joss.01686
+
+
+  
+
+

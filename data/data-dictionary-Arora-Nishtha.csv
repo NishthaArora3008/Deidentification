@@ -1,0 +1,146 @@
+Variable,Variable Label,Item Specific Information,Derivation technique (if derived),Specific Values in Dataset (if present),Value Label (if any),Count
+"Finished	",The status of the completion of survey.,Direct,,Yes,,
+"Progress					",The progress measured of the completion of survey out of 100.,Direct,,HAS RANGE OF VALUES,,
+"Consent_statement		",The agreement statement to be agreed to for starting the survey.,Direct,,Agreed,I understand and agree to continue(1),
+"Work_from_home_Freq_19					","In 2019, how often did you work from home?",Direct,,Didn't work in 2019 ,,19
+,,,,Never ,,596
+,,,,Sometimes ,,76
+,,,,About half the time ,,81
+,,,,Most of the time ,,72
+,,,,Always ,,147
+,,,,NA,Unanswered,9
+Work_from_home_Freq_20,"During the 2020 Victorian lockdowns, how often did you work from home?",Direct,,(0)didn't work in 2020 ,,307
+,,,,Never ,,121
+,,,,Sometimes ,,56
+,,,,Most of the time ,,37
+,,,,Always ,,421
+,,,,NA,Unanswered,9
+"Weekly_Working_hrs_19 	","On average, how many hours per week did you work in 2019?",Direct,,(0)didn't work in 2019 ,,71
+,,,,less than 10 hours ,,72
+,,,,10-20 hours ,,84
+,,,,20-30 hours ,,88
+,,,,30-40 hours ,,87
+,,,,40+ hours ,,587
+,,,,NA,Unanswered,11
+"Weekly_Working_hrs_20	","On average, how many hours per week did you work in 2020?",Direct,,(0)didn't work in 2020 ,,542
+"					",,,,less than 10 hours ,,93
+,,,,10-20 hours ,,53
+,,,,20-30 hours ,,56
+"					",,,,30-40 hours ,,54
+"					",,,,40+ hours ,,191
+,,,,NA,Unanswered,11
+"Traditional work hours_19  (9-5, Mon - Fri)					","When you think about a typical work week in 2019, when would you typically work (tick all that apply)? - Traditional work hours (9-5, Mon - Fri)",Direct,,0,No,201
+,,,,1,Yes,786
+,,,,NA,NA,13
+"Early mornings_19  (5am - 9am)					","When you think about a typical work week in 2019, when would you typically work (tick all that apply)? - Early mornings (5am - 9am)",Direct,,0,No,894
+,,,,1,Yes,93
+"					",,,,NA,Unanswered,13
+"Early evenings_19  (5pm - 9pm)					","When you think about a typical work week in 2019, when would you typically work (tick all that apply)?- Early evenings   (5pm - 9pm)",Direct,,0,No,769
+,,,,1,Yes,218
+,,,,NA,Unanswered,13
+"Late evenings_19  (5pm - midnight)					","When you think about a typical work week in 2019, when would you typically work (tick all that apply)?- Late evenings   (5pm - midnight)	",Direct,,0,No,790
+,,,,1,Yes,197
+,,,,NA,Unanswered,13
+"Overnight_19 (midnight - 5am)					","When you think about a typical work week in 2019, when would you typically work (tick all that apply)?- Overnight  (midnight - 5am)",Direct,,0,No,803
+"					",,,,1,Yes,184
+,,,,NA,Unanswered,13
+"Traditional work hours_20  (9-5, Mon - Fri)					","When you think about a typical work week in 2020, when would you typically work (tick all that apply)? - Traditional work hours  (9-5, Mon - Fri)",Direct,,0,No,424
+"					",,,,1,Yes,302
+"					",,,,NA,Unanswered,274
+"Early mornings_20  (5am - 9am)					","When you think about a typical work week in 2020, when would you typically work (tick all that apply)? - Early mornings  (5am - 9am)",Direct,,0,No,653
+"					",,,,1,Yes,73
+"					",,,,NA,Unanswered,274
+"Early evenings_20  (5pm - 9pm)					","When you think about a typical work week in 2020, when would you typically work (tick all that apply)?- Early evenings  (5pm - 9pm)",Direct,,0,No,560
+"					",,,,1,Yes,166
+"					",,,,NA,Unanswered,274
+"Late evenings_20 (5pm - midnight)					","When you think about a typical work week in 2020, when would you typically work (tick all that apply)?- Late evenings  (5pm - midnight)	",Direct,,0,No,269
+"					",,,,1,Yes,457
+"					",,,,NA,Unanswered,274
+"Overnight_20 (midnight - 5am)					","When you think about a typical work week in 2020, when would you typically work (tick all that apply)?- Overnight (midnight - 5am)",Direct,,0,No,579
+"					",,,,1,Yes,147
+"					",,,,NA,Unanswered,274
+Work_schedule_stability_19,"Week to week, how stable was your work schedule in 2019?",Direct,,No changes ,,591
+,,,,Some small changes ,,194
+,,,,Varying ,,94
+,,,,Unpredictable ,,106
+,,,,NA,Unanswered,15
+"Work_schedule_stability_20	","Week to week, how stable was your work schedule in 2020?",Direct,,No changes ,,121
+,,,,Some small changes ,,151
+,,,,Varying ,,234
+,,,,Unpredictable ,,219
+,,,,NA,Unanswered,275
+"Comfortable_lifestyle_19					","When you think about your home life in 2019, how would you describe it? (tick all that apply)- Comfortable (1)",Direct,,0,No,595
+"					",,,,1,Yes,389
+"					",,,,NA,Unanswered,16
+"Lonely_lifestyle_19					","When you think about your home life in 2019, how would you describe it? (tick all that apply)- Lonely (2)",Direct,,0,No,887
+"					",,,,1,Yes,97
+"					",,,,NA,Unanswered,16
+"Active_lifestyle_19					","When you think about your home life in 2019, how would you describe it? (tick all that apply)- Active (3) ",Direct,,0,No,393
+"					",,,,1,Yes,591
+"					",,,,NA,Unanswered,16
+"Connected_lifestyle_19					","When you think about your home life in 2019, how would you describe it? (tick all that apply)- Connected (4)",Direct,,0,No,781
+"					",,,,1,Yes,203
+"					",,,,NA,Unanswered,16
+"Peaceful_lifestyle_19					","When you think about your home life in 2019, how would you describe it? (tick all that apply)- Peaceful (5)",Direct,,0,No,786
+"					",,,,1,Yes,198
+"					",,,,NA,Unanswered,16
+"Chaotic_lifestyle_19					","When you think about your home life in 2019, how would you describe it? (tick all that apply)- Chaotic (6)",Direct,,0,No,778
+"					",,,,1,Yes,206
+"					",,,,NA,Unanswered,16
+"Comfortable_lifestyle_20					","When you think about your home life in 2020, how would you describe it? (tick all that apply)- Comfortable (1)",Direct,,0,No,478
+"					",,,,1,Yes,506
+"					",,,,NA,Unanswered,16
+"Lonely_lifestyle_20					","When you think about your home life in 2020, how would you describe it? (tick all that apply)- Lonely (2)",Direct,,0,No,888
+"					",,,,1,Yes,96
+"					",,,,NA,Unanswered,16
+"Active_lifestyle_20					","When you think about your home life in 2020, how would you describe it? (tick all that apply)- Active (3) ",Direct,,0,No,886
+"					",,,,1,Yes,98
+"					",,,,NA,Unanswered,16
+"Connected_lifestyle_20					","When you think about your home life in 2020, how would you describe it? (tick all that apply)- Connected (4)",Direct,,0,No,373
+"					",,,,1,Yes,611
+"					",,,,NA,Unanswered,16
+"Peaceful_lifestyle_20					","When you think about your home life in 2020, how would you describe it? (tick all that apply)- Peaceful (5)",Direct,,0,No,802
+"					",,,,1,Yes,182
+"					",,,,NA,Unanswered,16
+"Chaotic_lifestyle_20					","When you think about your home life in 2020, how would you describe it? (tick all that apply)- Chaotic (6)",Direct,,0,No,583
+"					",,,,1,Yes,401
+"					",,,,NA,Unanswered,16
+"Mental_health_19					",What best describes your mental health in 2019?,Direct,,Good ,,485
+"					",,,,Some challenges ,,252
+"					",,,,Significant challenges ,,243
+,,,,NA,Unanswered,20
+"Mental_health_20					",What best describes your mental health in 2020?,Direct,,Good ,,357
+"					",,,,Some challenges ,,327
+"					",,,,Significant challenges ,,295
+,,,,NA,Unanswered,21
+"Expected_Income_2021					",What is your expected income in 2021?,Derived,Addition of noise in the orignal expected income value of 2021.,HAS RANGE OF VALUES,,
+"Income_2020					",What is your household income in 2020?,Derived,Addition of noise in the orignal income value of 2020.,HAS RANGE OF VALUES,,
+"Income_2019					",What is your household income in 2019?,Derived,Addition of noise in the orignal income value of 2019.,HAS RANGE OF VALUES,,
+"Age_Group					",How old are you?,Derived,Aggregation of age into groups.,15-24,,4
+,,,,24-45,,312
+,,,,45-55,,389
+,,,,55- 80,,292
+,,,,80-150,,2
+,,,,NA,,1
+"Adult_count					",How many adults live in your household?,Derived,"Count marked as '3+' for greater than 3, values.",0,0 no. of adults ,0
+,,,,1,1 adult ,322
+,,,,2,2 adults,365
+,,,,3,3 adults,257
+,,,,More than 3,More than 3 adults,54
+,,,,NA,Unanswered,2
+"Children_count					",How many children(<18) live in your household?,Derived,"Count marked as '2+' for greater than 2, values.",0,0 No. of children,332
+,,,,1,1 child,373
+,,,,2,2 children,240
+,,,,More than 2,More than 2 children,53
+,,,,NA,Unanswered,2
+"Postcode_range					",Please confirm your postcode,Derived,Aggregation of postcode into groups.,0-3000,,2
+,,,,3000-3050,,227
+,,,,3050-3150,,479
+,,,,3150-3250,,289
+,,,,NA,,3
+"Year_of_record					",The year when that particular data entry of the survey was recorded.,Derived,Year derived from the recorded date in the orignal dataset.,2021,,979
+,,,,NA,,21
+"Month_of_record					",The month when that particular data entry of the survey was recorded.,Derived,Month derived from the recorded date in the orignal dataset.,January,,977
+,,,,February,,2
+"					",,,,NA,,21
+"The variable ""Progress"" and ""all income variables""  have a range of values  i.e. do not have specific values. All these variables also have NA values .",,,,,,
